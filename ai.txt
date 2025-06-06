@@ -1,1 +1,2 @@
-В прикрепленном файле измени код так, чтобы он могу реализовать: добавление элементов в список
+Add to the code the ability to change the items in the list.
+*Код*
