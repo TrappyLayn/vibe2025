@@ -65,38 +65,27 @@
 </div>
 
 <script>
-    let items = [];
-    let nextId = 1;
-
-    function renderList() {
-        const listBody = document.getElementById('listBody');
-        listBody.innerHTML = '';
-
-        items.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${item.text}</td>
-                <td><button onclick="removeItem(${index})">Remove</button></td>
-            `;
-            listBody.appendChild(row);
-        });
-    }
-
     function addItem() {
         const newItemInput = document.getElementById('newItem');
         const newItemText = newItemInput.value.trim();
 
-        if (newItemText) {
-            items.push({ id: nextId++, text: newItemText });
-            newItemInput.value = '';
-            renderList();
-        }
-    }
+        if (!newItemText) return;
 
-    function removeItem(index) {
-        items.splice(index, 1);
-        renderList();
+        fetch('/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: newItemText })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Reload page to show new item
+                window.location.reload();
+            } else {
+                alert('Error adding item: ' + (result.message || 'Unknown error'));
+            }
+        })
+        .catch(() => alert('Failed to add item!'));
     }
 </script>
 
