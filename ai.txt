@@ -1,1 +1,1 @@
-В прикрепленном файле измени код так, чтобы он могу реализовать: добавление элементов в список
+Add to the code the ability to add new items to the To Do List.
