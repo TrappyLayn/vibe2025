@@ -1,0 +1,2 @@
+Now add a function to remove elements to this code
+*Код*
