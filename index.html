@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>To-Do List</title>
     <style>
         body {
@@ -31,14 +31,30 @@
             margin-top: 20px;
             width: 70%;
             margin: 20px auto;
+            text-align: center;
         }
         .add-form input[type="text"] {
             padding: 8px;
             width: 70%;
+            font-size: 1em;
         }
         .add-form button {
             padding: 8px;
             width: 20%;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        button.delete-btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+        }
+        button.delete-btn:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
@@ -60,44 +76,65 @@
 </table>
 
 <div class="add-form">
-    <input type="text" id="newItem" placeholder="Enter new item">
+    <input type="text" id="newItem" placeholder="Enter new item" />
     <button onclick="addItem()">Add</button>
 </div>
 
 <script>
-    let items = [];
-    let nextId = 1;
-
-    function renderList() {
-        const listBody = document.getElementById('listBody');
-        listBody.innerHTML = '';
-
-        items.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${item.text}</td>
-                <td><button onclick="removeItem(${index})">Remove</button></td>
-            `;
-            listBody.appendChild(row);
-        });
-    }
-
-    function addItem() {
+    async function addItem() {
         const newItemInput = document.getElementById('newItem');
         const newItemText = newItemInput.value.trim();
 
-        if (newItemText) {
-            items.push({ id: nextId++, text: newItemText });
-            newItemInput.value = '';
-            renderList();
+        if (!newItemText) return;
+
+        try {
+            const response = await fetch('/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: newItemText }),
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Ошибка при добавлении элемента');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка соединения с сервером');
         }
     }
 
-    function removeItem(index) {
-        items.splice(index, 1);
-        renderList();
-    }
+    // Делегируем обработчик клика на кнопки удаления
+    document.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('delete-btn')) {
+            const id = event.target.getAttribute('data-id');
+            if (!id) return;
+
+            if (!confirm('Удалить этот элемент?')) return;
+
+            try {
+                const response = await fetch('/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: Number(id) }),
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка при удалении элемента');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+    });
 </script>
 
 </body>
